@@ -58,6 +58,12 @@ class Bird:
         self._rct = self._img.get_rect()
         self._rct.center = xy
 
+        """
+    def get_direction(self._imgs):
+        return self._imgs
+        """
+
+
     def change_img(self, num: int, screen: pg.Surface):
         """
         こうかとん画像を切り替え，画面に転送する
@@ -126,6 +132,7 @@ class Beam:
     """
     ビームに関するクラス
     """
+    #bls = []
     def __init__(self, bird: Bird):
         """
         画像surface
@@ -154,6 +161,11 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     clock = pg.time.Clock()
     bg_img = pg.image.load("ex03/fig/pg_bg.jpg")
+    num = 0
+    font1 = pg.font.SysFont(None, 100)
+    text1 = font1.render(f"score : {num}", True, (0, 0, 0))
+    text2 = font1.render("Game Over", True, (0, 0, 0))
+    
 
     bird = Bird(3, (900, 400))
     bombs = [Bomb() for _ in range(NUM_OF_BOMBS)]
@@ -161,11 +173,13 @@ def main():
 
     tmr = 0
     while True:
+        screen.blit(text1, (100, 100))     
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 beam = Beam(bird)
+                #Beam.bls.append(screen)
 
         tmr += 1        
         screen.blit(bg_img, [0, 0])
@@ -174,19 +188,23 @@ def main():
         for bomb in bombs:
             bomb.update(screen)
             if bird._rct.colliderect(bomb._rct):
+                
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                 bird.change_img(8, screen)
+                screen.blit(text2, (600, 400))
                 pg.display.update()
                 time.sleep(1)
                 return
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
+        
         if beam is not None:
             beam.update(screen)
             for i, bomb in enumerate(bombs):
                 if beam._rct.colliderect(bomb._rct):
                     beam = None
+                    num += 1
                     del bombs[i]
                     bird.change_img(6, screen)
                     break
